@@ -52,5 +52,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+  lint:
+    needs:
+      - install-deps
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Lint
         run: pnpm lint
