@@ -8,6 +8,10 @@ on:
       - reopened
       - ready_for_review
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   NODE: 18
   PNPM_VERSION: 8
@@ -94,13 +98,6 @@ jobs:
 
       - name: Build
         run: pnpm build
-      
-      - name: Validate env values 
-        run: |
-          echo ${{ vars.OIDC_DEPLOYMENT_ROLE_ARN }}
-          echo ${{ vars.S3_REGION }}
-          echo ${{ vars.S3_BUCKET_NAME }}
-          echo ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
