@@ -94,6 +94,13 @@ jobs:
 
       - name: Build
         run: pnpm build
+      
+      - name: Validate env values 
+        run: |
+          echo ${{ env.OIDC_DEPLOYMENT_ROLE_ARN }}
+          echo ${{ env.S3_REGION }}
+          echo ${{ env.S3_BUCKET_NAME }}
+          echo ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
