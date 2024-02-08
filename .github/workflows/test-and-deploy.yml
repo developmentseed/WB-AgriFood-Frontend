@@ -60,8 +60,7 @@ jobs:
     needs:
       - install-deps-and-lint
     runs-on: ubuntu-latest
-    environment: staging # Github actions environment
-    
+    environment: Staging # Github actions environment
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -100,7 +99,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ env.OIDC_DEPLOYMENT_ROLE_ARN }}
-          aws-region: ${{ env.S3_BUCKET_REGION }}
+          aws-region: ${{ env.S3_REGION }}
 
       - name: Deploy to S3 bucket 🚀
         env:
@@ -111,16 +110,16 @@ jobs:
         # to also deploy the index file to the bucket root
         run: |
           aws s3 sync \
-            ./${SOURCE_DIR} "s3://${BUCKET}}" \
+            ./${SOURCE_DIR} "s3://${BUCKET}" \
             --follow-symlinks \
             --delete
           
       - name: Invalidate CloudFront
         env:
-          DISTRIBUTION_ID: ${{ env.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
+          DISTRIBUTION_ID: ${{ env.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id $DISTRIBUTION_ID \
+            --distribution-id ${DISTRIBUTION_ID} \
             --paths "/*"
       
       
@@ -129,7 +128,7 @@ jobs:
       #   with:
       #     folder: dist
       #     bucket: ${{ secrets.STAGING_S3_BUCKET }}
-      #     bucket-region: ${{ secrets.STAGING_S3_BUCKET_REGION }}
+      #     bucket-region: ${{ secrets.STAGING_S3_BUCKET_REGION\ }}
       #     # dist-id: ${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
       #     # invalidation: /
       #     # delete-removed: true
@@ -183,7 +182,7 @@ jobs:
         with:
           folder: dist
           bucket: ${{ secrets.PRODUCTION_S3_BUCKET }}
-          bucket-region: ${{ secrets.PRODUCTION_S3_BUCKET_REGION }}
+          bucket-region: ${{ secrets.PRODUCTION_S3_BUCKET_REGION\ }}
           # dist-id: ${{ secrets.PRODUCTION_CLOUDFRONT_DISTRIBUTION_ID }}
           # invalidation: /
           # delete-removed: true
