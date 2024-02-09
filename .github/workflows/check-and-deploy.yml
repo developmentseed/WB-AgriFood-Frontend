@@ -1,4 +1,4 @@
-name: Check Pull Request
+name: Run checks and deploy
 
 on:
   push:
@@ -112,8 +112,8 @@ jobs:
       - name: Deploy to S3 bucket 🚀
         env:
           BUCKET: ${{ vars.S3_BUCKET_NAME }}
-          SOURCE_DIR: "dist" 
-        # Will sync to bucket root. In order to deploy to 
+          SOURCE_DIR: "dist"
+        # Will sync to bucket root. In order to deploy to
         # subpath, use `s3://${BUCKET}/{subpath}` and remember
         # to also deploy the index file to the bucket root
         run: |
@@ -121,7 +121,7 @@ jobs:
             ./${SOURCE_DIR} "s3://${BUCKET}" \
             --follow-symlinks \
             --delete
-          
+
       - name: Invalidate CloudFront
         env:
           DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
@@ -129,20 +129,6 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id ${DISTRIBUTION_ID} \
             --paths "/*"
-      
-      
-      # - name: Deploy
-      #   uses: reggionick/s3-deploy@v4
-      #   with:
-      #     folder: dist
-      #     bucket: ${{ secrets.STAGING_S3_BUCKET }}
-      #     bucket-region: ${{ secrets.STAGING_S3_BUCKET_REGION }}
-      #     # dist-id: ${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
-      #     # invalidation: /
-      #     # delete-removed: true
-      #     # no-cache: true
-      #     # private: true
-      #     # files-to-include: "{.*/**,**}"
 
   # deploy-production:
   #   needs:
