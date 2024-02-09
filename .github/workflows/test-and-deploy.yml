@@ -1,0 +1,199 @@
+name: Check Pull Request
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  NODE: 18
+  PNPM_VERSION: 8
+
+# Avoid running multiple jobs for the same branch concurrently
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  install-deps-and-lint:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE }}
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint
+        run: pnpm lint
+
+  deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs:
+      - install-deps-and-lint
+    runs-on: ubuntu-latest
+    environment: Staging # Github actions environment
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE }}
+
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ vars.OIDC_DEPLOYMENT_ROLE_ARN }}
+          aws-region: ${{ vars.S3_REGION }}
+
+      - name: Deploy to S3 bucket 🚀
+        env:
+          BUCKET: ${{ vars.S3_BUCKET_NAME }}
+          SOURCE_DIR: "dist" 
+        # Will sync to bucket root. In order to deploy to 
+        # subpath, use `s3://${BUCKET}/{subpath}` and remember
+        # to also deploy the index file to the bucket root
+        run: |
+          aws s3 sync \
+            ./${SOURCE_DIR} "s3://${BUCKET}" \
+            --follow-symlinks \
+            --delete
+          
+      - name: Invalidate CloudFront
+        env:
+          DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${DISTRIBUTION_ID} \
+            --paths "/*"
+      
+      
+      # - name: Deploy
+      #   uses: reggionick/s3-deploy@v4
+      #   with:
+      #     folder: dist
+      #     bucket: ${{ secrets.STAGING_S3_BUCKET }}
+      #     bucket-region: ${{ secrets.STAGING_S3_BUCKET_REGION }}
+      #     # dist-id: ${{ secrets.STAGING_CLOUDFRONT_DISTRIBUTION_ID }}
+      #     # invalidation: /
+      #     # delete-removed: true
+      #     # no-cache: true
+      #     # private: true
+      #     # files-to-include: "{.*/**,**}"
+
+  # deploy-production:
+  #   needs:
+  #     - install-deps-and-lint
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: ${{ env.NODE }}
+
+  #     - uses: pnpm/action-setup@v2
+  #       name: Install pnpm
+  #       with:
+  #         version: ${{ env.PNPM_VERSION }}
+  #         run_install: false
+
+  #     - name: Get pnpm store directory
+  #       shell: bash
+  #       run: |
+  #         echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+  #     - uses: actions/cache@v3
+  #       name: Setup pnpm cache
+  #       with:
+  #         path: ${{ env.STORE_PATH }}
+  #         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-pnpm-store-
+
+  #     - name: Install dependencies
+  #       run: pnpm install
+
+  #     - name: Build
+  #       run: pnpm build
+
+  #     - name: Deploy
+  #       uses: reggionick/s3-deploy@v4
+  #       with:
+  #         folder: dist
+  #         bucket: ${{ secrets.PRODUCTION_S3_BUCKET }}
+  #         bucket-region: ${{ secrets.PRODUCTION_S3_BUCKET_REGION }}
+  #         # dist-id: ${{ secrets.PRODUCTION_CLOUDFRONT_DISTRIBUTION_ID }}
+  #         # invalidation: /
+  #         # delete-removed: true
+  #         # no-cache: true
+  #         # private: true
+  #         # files-to-include: "{.*/**,**}"
