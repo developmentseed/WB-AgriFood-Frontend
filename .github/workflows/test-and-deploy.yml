@@ -1,6 +1,9 @@
 name: Check Pull Request
 
 on:
+  push:
+    branches:
+      - develop
   pull_request:
     types:
       - opened
@@ -61,6 +64,7 @@ jobs:
         run: pnpm lint
 
   deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
     needs:
       - install-deps-and-lint
     runs-on: ubuntu-latest
