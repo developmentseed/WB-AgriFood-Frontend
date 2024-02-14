@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-import {
-  Box,
-  Heading,
-  Text,
-  Input,
-  Button,
-  FormControl,
-} from "@chakra-ui/react";
+import { Box, Divider } from '@chakra-ui/react';
+
+import Sidebar from './components/Sidebar';
+import Layout from './components/Layout';
+import PageHeader from './components/PageHeader';
+import LandingState from './components/LandingState';
+import QueryForm from './components/QueryForm';
+import Conversation from './components/Conversation';
 
 function App() {
-  const [formQuestion, setFormQuestion] = useState<string>("");
+  const [formQuestion, setFormQuestion] = useState<string>('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,42 +22,30 @@ function App() {
   };
 
   return (
-    <Box maxW="700px" mx="auto" px="4" my="100">
+    <Layout>
+      {/* <PageHeader /> */}
+      <Sidebar />
       <Box
-        bg="gray.200"
-        w="300px"
-        h="64px"
-        display={"flex"}
-        justifyContent={"center"}
-        alignItems={"center"}
+        as="main"
+        p="8"
+        bg="gray.100"
+        display="flex"
+        flexDirection="column"
+        alignContent="center"
+        gap="8"
+        overflow="hidden"
       >
-        WB Logo
-      </Box>
-      <Heading py={5}>World Bank Agrifood Data Lab</Heading>
-      <Text py={5}>
-        A tool to strengthen data use capacities across the World Bank on
-        datasets, use cases, and applications related to agriculture and food.
-        What specific information are you looking for today?
-      </Text>
-      <form onSubmit={handleSubmit}>
-        <FormControl>
-          <Input
-            placeholder="Type your question"
-            size="lg"
-            onChange={handleQuestionChange}
+        {formQuestion.length > 0 ? <Conversation /> : <LandingState />}
+        <Box mt="auto" position="sticky" bottom="0" bg="gray.100" m='-4' p='4' mb='0' pb='0'>
+          <Divider mb="4" borderColor="gray.400" />
+          <QueryForm
+            formQuestion={formQuestion}
+            handleSubmit={handleSubmit}
+            handleQuestionChange={handleQuestionChange}
           />
-          <Button
-            type="submit"
-            colorScheme="blue"
-            size="lg"
-            mt={5}
-            isDisabled={formQuestion === ""}
-          >
-            Send Question
-          </Button>
-        </FormControl>
-      </form>
-    </Box>
+        </Box>
+      </Box>
+    </Layout>
   );
 }
 
