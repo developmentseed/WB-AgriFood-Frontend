@@ -7,18 +7,13 @@ import Layout from "./components/Layout";
 import LandingState from "./components/LandingState";
 import QueryForm from "./components/QueryForm";
 import Conversation from "./components/Conversation";
+import useChatReducer from "./chat-reducer";
 
 function App() {
-  const [formQuestion, setFormQuestion] = useState<string>("");
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    alert(`Your question has been submitted: ${formQuestion}`);
-  };
-
-  const handleQuestionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormQuestion(e.target.value);
-  };
+  const {
+    state: { currentMessages },
+    sendQuery,
+  } = useChatReducer();
 
   return (
     <Layout>
@@ -33,7 +28,11 @@ function App() {
         gap="8"
         overflow="hidden"
       >
-        {formQuestion.length > 0 ? <Conversation /> : <LandingState />}
+        {currentMessages.length > 0 ? (
+          <Conversation currentMessages={currentMessages} />
+        ) : (
+          <LandingState />
+        )}
         <Box
           mt="auto"
           position="sticky"
@@ -46,9 +45,9 @@ function App() {
         >
           <Divider mb="4" borderColor="gray.400" />
           <QueryForm
-            formQuestion={formQuestion}
-            handleSubmit={handleSubmit}
-            handleQuestionChange={handleQuestionChange}
+            sendQuery={(query) => {
+              sendQuery(query);
+            }}
           />
         </Box>
       </Box>
