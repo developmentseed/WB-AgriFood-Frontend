@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-
 import { Box, Divider } from "@chakra-ui/react";
 
 import Sidebar from "./components/Sidebar";
@@ -31,7 +29,7 @@ function App() {
         {currentMessages.length > 0 ? (
           <Conversation currentMessages={currentMessages} />
         ) : (
-          <LandingState />
+          <LandingState sendQuery={sendQuery} />
         )}
         <Box
           mt="auto"

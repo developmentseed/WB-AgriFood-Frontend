@@ -1,43 +1,6 @@
-import {
-  Stack,
-  Flex,
-  Image,
-  Button,
-  Text,
-  Divider,
-  Spinner,
-  Link,
-} from "@chakra-ui/react";
-
-import { useState, useEffect } from "react";
-
-interface Chat {
-  title: string;
-  id: number;
-}
+import { Stack, Flex, Image, Text, Divider, Link } from "@chakra-ui/react";
 
 export default function Sidebar() {
-  const [loading, setLoading] = useState(true);
-  const [existingChats, setExistingChats] = useState<Chat[]>([]);
-  useEffect(() => {
-    const sampleChats = [
-      {
-        title: "How to succeed in Agriculture Without Really Trying",
-        id: 328839,
-      },
-      {
-        title: "Food security in Nigeria",
-        id: 499283,
-      },
-      {
-        title: "Increasing crop yield in Southeast Asia",
-        id: 588923,
-      },
-    ];
-    setTimeout(() => setLoading(false), 3000);
-    setTimeout(() => setExistingChats(sampleChats), 3000);
-  }, []);
-
   return (
     <Stack
       direction="column"
@@ -75,37 +38,6 @@ export default function Sidebar() {
           retrieval, and analysis capabilities.
         </Text>
         <Divider />
-        {loading ? (
-          <Spinner m={4} />
-        ) : existingChats.length > 0 ? (
-          <Flex direction="column" overflow="scroll" gap="4" py={4}>
-            <Text
-              w="full"
-              textTransform={"uppercase"}
-              letterSpacing={"wider"}
-              fontSize={"xs"}
-              display={"flex"}
-              color="gray.400"
-            >
-              Previous Conversations
-            </Text>
-            {existingChats.map((c) => (
-              <Button
-                as={Link}
-                size="xs"
-                colorScheme="blackAlpha"
-                justifyContent="left"
-                key={c.id}
-                href={`/channel/${c.id}`}
-                px={2}
-              >
-                # {c.title}
-              </Button>
-            ))}{" "}
-          </Flex>
-        ) : (
-          <Text p={4}>Start a new conversation</Text>
-        )}
       </Flex>
     </Stack>
   );

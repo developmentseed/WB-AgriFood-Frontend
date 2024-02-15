@@ -1,18 +1,21 @@
-import { Flex, Heading, Text, Grid, Button } from '@chakra-ui/react';
-import { ChevronRightIcon } from '@chakra-ui/icons';
+import { Flex, Heading, Text, Grid, Button } from "@chakra-ui/react";
+import { ChevronRightIcon } from "@chakra-ui/icons";
+import type { SendQueryFunction } from "../chat-reducer";
+
 const sampleQuestions = [
-  'What types of data can I access here?',
-  'How should I structure my questions?',
-  'How have we improved rice production in Nigeria?',
-  'Which food security programs have succeeded in Asia?',
+  "What types of data can I access here?",
+  "How should I structure my questions?",
+  "How have we improved rice production in Nigeria?",
+  "Which food security programs have succeeded in Asia?",
 ];
-function LandingState() {
+
+function LandingState({ sendQuery }: { sendQuery: SendQueryFunction }) {
   return (
     <Flex
       flexDir="column"
       flex="1"
-      justifyContent={'space-between'}
-      alignItems={'center'}
+      justifyContent={"space-between"}
+      alignItems={"center"}
       gap="4"
     >
       <Heading textAlign="center" size="xl" my="auto">
@@ -31,6 +34,7 @@ function LandingState() {
             bg="white"
             justifyContent="left"
             rightIcon={<ChevronRightIcon />}
+            onClick={() => sendQuery(q)}
           >
             {q}
           </Button>
