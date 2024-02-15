@@ -13,7 +13,7 @@ export default defineConfig({
   },
   define: {
     __COMMIT_HASH__: JSON.stringify(
-      execSync("git rev-parse --short HEAD").toString().trim()
+      execSync("git rev-parse --short HEAD").toString().trim(),
     ),
     __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
   },
