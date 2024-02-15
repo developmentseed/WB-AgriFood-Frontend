@@ -7,24 +7,30 @@ import {
   Divider,
   Spinner,
   Link,
-} from '@chakra-ui/react';
-import { useState, useEffect } from 'react';
+} from "@chakra-ui/react";
+
+import { useState, useEffect } from "react";
+
+interface Chat {
+  title: string;
+  id: number;
+}
+
 export default function Sidebar() {
   const [loading, setLoading] = useState(true);
-  const [signedIn, setSignedIn] = useState(true)
-  const [existingChats, setExistingChats] = useState([]);
+  const [existingChats, setExistingChats] = useState<Chat[]>([]);
   useEffect(() => {
     const sampleChats = [
       {
-        title: 'How to succeed in Agriculture Without Really Trying',
+        title: "How to succeed in Agriculture Without Really Trying",
         id: 328839,
       },
       {
-        title: 'Food security in Nigeria',
+        title: "Food security in Nigeria",
         id: 499283,
       },
       {
-        title: 'Increasing crop yield in Southeast Asia',
+        title: "Increasing crop yield in Southeast Asia",
         id: 588923,
       },
     ];
@@ -42,7 +48,7 @@ export default function Sidebar() {
       bg="blue.800"
       color="white"
       p={4}
-      boxShadow={'md'}
+      boxShadow={"md"}
       height="100%"
     >
       <Flex direction="column">
@@ -55,10 +61,10 @@ export default function Sidebar() {
             filter="invert(1) grayscale(1)"
           />
           <Text
-            fontSize={'sm'}
+            fontSize={"sm"}
             pl="10"
             mt="-3"
-            textTransform={'uppercase'}
+            textTransform={"uppercase"}
             letterSpacing={1}
           >
             Agrifood Data Lab
@@ -75,10 +81,10 @@ export default function Sidebar() {
           <Flex direction="column" overflow="scroll" gap="4" py={4}>
             <Text
               w="full"
-              textTransform={'uppercase'}
-              letterSpacing={'wider'}
-              fontSize={'xs'}
-              display={'flex'}
+              textTransform={"uppercase"}
+              letterSpacing={"wider"}
+              fontSize={"xs"}
+              display={"flex"}
               color="gray.400"
             >
               Previous Conversations
@@ -95,13 +101,12 @@ export default function Sidebar() {
               >
                 # {c.title}
               </Button>
-            ))}{' '}
+            ))}{" "}
           </Flex>
         ) : (
           <Text p={4}>Start a new conversation</Text>
         )}
       </Flex>
-      <Button onClick={() => setSignedIn(!signedIn)} colorScheme='whiteAlpha' mt={5}>{signedIn ? 'Sign out' : 'Sign In'}</Button>
     </Stack>
   );
 }

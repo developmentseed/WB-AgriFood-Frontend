@@ -4,9 +4,19 @@ import {
   InputGroup,
   InputRightElement,
   Button,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 
-function QueryForm({ handleSubmit, handleQuestionChange, formQuestion }) {
+interface QueryFormProps {
+  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  handleQuestionChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  formQuestion: string;
+}
+
+function QueryForm({
+  handleSubmit,
+  handleQuestionChange,
+  formQuestion,
+}: QueryFormProps) {
   return (
     <form onSubmit={handleSubmit}>
       <FormControl>
@@ -20,7 +30,7 @@ function QueryForm({ handleSubmit, handleQuestionChange, formQuestion }) {
               flexShrink="0"
               type="submit"
               colorScheme="blue"
-              isDisabled={formQuestion === ''}
+              isDisabled={formQuestion === ""}
             >
               Send
             </Button>

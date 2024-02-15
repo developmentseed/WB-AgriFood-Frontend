@@ -1,6 +1,14 @@
-import { Stack, Text, Flex, Avatar, HStack, Image } from '@chakra-ui/react';
+import { Stack, Text, Flex, Avatar, HStack, Image } from "@chakra-ui/react";
 
-export default function Message({ messageData, isMyMessage }) {
+interface MessageProps {
+  messageData: {
+    from: string;
+    text: string;
+  };
+  isMyMessage: boolean;
+}
+
+export default function Message({ messageData, isMyMessage }: MessageProps) {
   if (isMyMessage) {
     return (
       <Flex w="100%" direction="column" mb={2}>
@@ -19,7 +27,7 @@ export default function Message({ messageData, isMyMessage }) {
     return (
       <Flex w="100%" mb="2">
         <Stack>
-          <HStack alignItems={'center'} spacing={2} mb={1}>
+          <HStack alignItems={"center"} spacing={2} mb={1}>
             <Image src="/World_Bank_Group_logo-symbol.svg" width="6" />
             <Text fontWeight="bold" fontSize="sm">
               {messageData.from}
