@@ -1,8 +1,8 @@
 import { Flex } from "@chakra-ui/react";
 import Message from "./Message";
-import type { ChatMessage } from "../chat-reducer";
+import type { Message as MessageType } from "../chat-reducer";
 
-function Conversation({ currentMessages }: { currentMessages: ChatMessage[] }) {
+function Conversation({ currentMessages }: { currentMessages: MessageType[] }) {
   return (
     <Flex
       flexDir="column"

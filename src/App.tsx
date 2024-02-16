@@ -9,9 +9,11 @@ import useChatReducer from "./chat-reducer";
 
 function App() {
   const {
-    state: { currentMessages },
-    sendQuery,
+    state: { currentMessages, status },
+    sendQuery = () => {},
   } = useChatReducer();
+
+  const isLoading = status !== "loading";
 
   return (
     <Layout>
@@ -26,7 +28,7 @@ function App() {
         gap="8"
         overflow="hidden"
       >
-        {currentMessages.length > 0 ? (
+        {!isLoading || currentMessages.length > 0 ? (
           <Conversation currentMessages={currentMessages} />
         ) : (
           <LandingState sendQuery={sendQuery} />
@@ -42,11 +44,7 @@ function App() {
           pb="0"
         >
           <Divider mb="4" borderColor="gray.400" />
-          <QueryForm
-            sendQuery={(query) => {
-              sendQuery(query);
-            }}
-          />
+          <QueryForm status={status} sendQuery={sendQuery} />
         </Box>
       </Box>
     </Layout>
