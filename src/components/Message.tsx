@@ -1,8 +1,9 @@
 import { Stack, Text, Flex, Avatar, HStack, Image } from "@chakra-ui/react";
 
-import type { ChatMessage } from "../chat-reducer";
+import type { Message } from "../chat-reducer";
 
-const OutboundMessage = ({ message }: { message: ChatMessage }) => {
+const OutboundMessage = ({ message }: { message: Message }) => {
+  const content = message.content[0].text.value;
   return (
     <Flex w="100%" direction="column" mb={2}>
       <HStack alignItems="center" spacing={2} mb={1}>
@@ -12,13 +13,14 @@ const OutboundMessage = ({ message }: { message: ChatMessage }) => {
         </Text>
       </HStack>
       <Flex my={1} px={8}>
-        <Text>{message.content}</Text>
+        <Text>{content}</Text>
       </Flex>
     </Flex>
   );
 };
 
-const InboundMessage = ({ message }: { message: ChatMessage }) => {
+const InboundMessage = ({ message }: { message: Message }) => {
+  const content = message.content[0].text.value;
   return (
     <Flex w="100%" mb="2">
       <Stack>
@@ -29,15 +31,15 @@ const InboundMessage = ({ message }: { message: ChatMessage }) => {
           </Text>
         </HStack>
         <Flex my={1} px={8}>
-          <Text>{message.content}</Text>
+          <Text>{content}</Text>
         </Flex>
       </Stack>
     </Flex>
   );
 };
 
-export default function Message({ message }: { message: ChatMessage }) {
-  return message.type === "inbound" ? (
+export default function Message({ message }: { message: Message }) {
+  return message.role === "assistant" ? (
     <InboundMessage message={message} />
   ) : (
     <OutboundMessage message={message} />

@@ -6,13 +6,18 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import { ChatStatus } from "../chat-reducer";
 
 interface QueryFormProps {
-  sendQuery: (question: string) => void;
+  sendQuery: (query: string) => void;
+  status: ChatStatus;
 }
 
-function QueryForm({ sendQuery }: QueryFormProps) {
+function QueryForm({ sendQuery, status }: QueryFormProps) {
   const [localQuestion, setLocalQuestion] = useState<string>("");
+
+  const isLoading = status !== "idle";
+
   return (
     <form
       onSubmit={(e) => {
@@ -24,7 +29,12 @@ function QueryForm({ sendQuery }: QueryFormProps) {
       <FormControl>
         <InputGroup size="lg" bg="white">
           <Input
-            placeholder="Send a message to AgriFood Data Lab"
+            placeholder={
+              isLoading
+                ? "Sending your message to Agrifood Data Lab..."
+                : "Send a message to AgriFood Data Lab"
+            }
+            disabled={isLoading}
             value={localQuestion}
             onChange={(e) => {
               setLocalQuestion(e.target.value);
@@ -35,9 +45,9 @@ function QueryForm({ sendQuery }: QueryFormProps) {
               flexShrink="0"
               type="submit"
               colorScheme="blue"
-              isDisabled={localQuestion.length === 0}
+              isDisabled={isLoading || localQuestion === ""}
             >
-              Send
+              {isLoading ? "..." : "Send"}
             </Button>
           </InputRightElement>
         </InputGroup>
