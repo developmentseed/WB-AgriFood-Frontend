@@ -26,8 +26,8 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
         setLocalQuestion("");
       }}
     >
-      <FormControl>
-        <InputGroup bg="white" size={["sm", "md"]}>
+      <FormControl maxW="75ch" mx="auto">
+        <InputGroup size={["sm", "md"]} justifyContent="space-between">
           <Input
             placeholder={
               isLoading
@@ -39,6 +39,7 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
             whiteSpace="nowrap"
             disabled={isLoading}
             value={localQuestion}
+            bg="white"
             pr={12}
             onChange={(e) => {
               setLocalQuestion(e.target.value);

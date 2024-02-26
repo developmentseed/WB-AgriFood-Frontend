@@ -1,24 +1,22 @@
-import { Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import Message from "./Message";
 import type { Message as MessageType } from "../chat-reducer";
+import ScrollToBottom from "react-scroll-to-bottom";
 
 function Conversation({ currentMessages }: { currentMessages: MessageType[] }) {
   return (
-    <Flex
-      flexDir="column"
+    <Box
       flex="1"
-      justifyContent={"flex-start"}
-      alignItems={"end"}
-      gap={["2", "4"]}
-      overflowY="auto"
       alignSelf={"center"}
       width="100%"
-      maxW={["65ch", "75ch" ]}
+      height="100%"
     >
-      {currentMessages.map((m) => (
-        <Message key={m.id} message={m} />
-      ))}
-    </Flex>
+      <ScrollToBottom className="scroll-container">
+        {currentMessages.map((m) => (
+          <Message key={m.id} message={m} />
+        ))}
+      </ScrollToBottom>
+    </Box>
   );
 }
 export default Conversation;
