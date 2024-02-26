@@ -1,4 +1,4 @@
-import { Flex, Heading, Text, Grid, Button } from "@chakra-ui/react";
+import { Flex, Heading, Text, Grid, Button, Image } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 
 const sampleQuestions = [
@@ -15,27 +15,33 @@ function LandingState({ sendQuery }: { sendQuery: (query: string) => void }) {
       flex="1"
       justifyContent={"space-between"}
       alignItems={"center"}
-      gap="4"
+      gap={["2", "4"]}
     >
-      <Heading textAlign="center" size="xl" my="auto">
-        What information can I help you find today?
-      </Heading>
-      <Text gridColumn="1/-1" textAlign="center" fontSize="lg">
+      <Flex flexDir="column" alignItems={"center"} my="auto" gap="2">
+        <Image src="/World_Bank_Group_logo-symbol.svg" width="8" />
+        <Heading textAlign="center" size={["sm", "md", "lg"]}>
+          What information can I help you find today?
+        </Heading>
+      </Flex>
+      <Text gridColumn="1/-1" textAlign="center" fontSize={["sm", "md", "lg"]}>
         Try Asking:
       </Text>
-      <Grid templateColumns="repeat(2, 1fr)" gap="4" width="100%">
+      <Grid templateColumns={["1fr", null, "repeat(2, 1fr)"]} gap="4">
         {sampleQuestions.map((q) => (
           <Button
             key={q}
-            size="lg"
+            size="sm"
             variant="outline"
+            overflow="hidden"
             colorScheme="blue"
             bg="white"
-            justifyContent="left"
+            justifyContent="space-between"
             rightIcon={<ChevronRightIcon />}
             onClick={() => sendQuery(q)}
           >
-            {q}
+            <Text textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+              {q}
+            </Text>
           </Button>
         ))}
       </Grid>

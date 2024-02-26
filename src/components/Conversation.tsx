@@ -7,11 +7,13 @@ function Conversation({ currentMessages }: { currentMessages: MessageType[] }) {
     <Flex
       flexDir="column"
       flex="1"
-      justifyContent={"space-between"}
+      justifyContent={"flex-start"}
       alignItems={"end"}
-      gap="4"
-      overflow="scroll"
+      gap={["2", "4"]}
+      overflowY="auto"
       alignSelf={"center"}
+      width="100%"
+      maxW={["65ch", "75ch" ]}
     >
       {currentMessages.map((m) => (
         <Message key={m.id} message={m} />

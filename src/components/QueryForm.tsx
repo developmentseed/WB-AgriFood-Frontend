@@ -27,25 +27,31 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
       }}
     >
       <FormControl>
-        <InputGroup size="lg" bg="white">
+        <InputGroup bg="white" size={["sm", "md"]}>
           <Input
             placeholder={
               isLoading
                 ? "Sending your message to Agrifood Data Lab..."
                 : "Send a message to AgriFood Data Lab"
             }
+            textOverflow="ellipsis"
+            overflow="hidden"
+            whiteSpace="nowrap"
             disabled={isLoading}
             value={localQuestion}
+            pr={12}
             onChange={(e) => {
               setLocalQuestion(e.target.value);
             }}
           />
           <InputRightElement mr="4">
             <Button
+              size={["xs", "sm"]}
               flexShrink="0"
               type="submit"
               colorScheme="blue"
               isDisabled={isLoading || localQuestion === ""}
+              isLoading={isLoading}
             >
               {isLoading ? "..." : "Send"}
             </Button>
