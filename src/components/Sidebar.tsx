@@ -33,11 +33,11 @@ export default function Sidebar() {
             Agrifood Data Lab
           </Text>
         </Link>
-        <Text py={4}>
+        <Text py={4} display={["none", null, "inline"]} fontSize="small">
           Discover agricultural use cases and data, with AI-enabled search,
           retrieval, and analysis capabilities.
         </Text>
-        <Divider />
+        <Divider display={["none", null, "inline"]}/>
       </Flex>
     </Stack>
   );

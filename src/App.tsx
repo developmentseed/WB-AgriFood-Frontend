@@ -20,12 +20,12 @@ function App() {
       <Sidebar />
       <Box
         as="main"
-        p="8"
+        p={[4, null, 8]}
         bg="gray.100"
         display="flex"
         flexDirection="column"
         alignContent="center"
-        gap="8"
+        gap="4"
         overflow="hidden"
       >
         {!isLoading || currentMessages.length > 0 ? (

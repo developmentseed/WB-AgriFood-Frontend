@@ -5,7 +5,8 @@ function Layout({ children }: { children: ReactNode }) {
   return (
     <Box
       display="grid"
-      gridTemplateColumns={"20rem 1fr"}
+      gridTemplateColumns={["1fr", null, "1fr 2fr", "20rem 1fr"]}
+      gridTemplateRows={["max-content 1fr", null, "none"]}
       height="100vh"
       maxHeight="100vh"
     >
