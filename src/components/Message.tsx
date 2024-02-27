@@ -38,6 +38,7 @@ export default function Message({ message }: { message: Message }) {
             className={`markdown-body markdown-custom-styles`}
             components={{
               a: ({ ...props }) => {
+                // eslint-disable-next-line react/prop-types
                 if (!props.title) {
                   return <a {...props} />;
                 }
