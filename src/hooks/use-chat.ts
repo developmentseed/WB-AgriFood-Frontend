@@ -168,7 +168,6 @@ export default function useChat() {
           },
         });
       } catch (error) {
-        console.error("Error fetching thread ID:", error);
         toast.error("Failed to send message to AgriFood Data Lab");
         dispatch({
           type: "SEND_QUERY_ERROR",

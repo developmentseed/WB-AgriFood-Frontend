@@ -37,11 +37,8 @@ async function fetchAPI<T>(
       return (await response.json()) as T;
     } catch (error) {
       attempts++;
-      console.error(`Attempt ${attempts} failed: ${(error as Error).message}`);
       if (attempts >= maxRetries) {
-        throw new Error(
-          `Failed to fetch from ${endpoint} after ${maxRetries} attempts`,
-        );
+        throw new Error(`Failed to fetch from ${endpoint}`);
       }
       await delaySeconds(RETRY_DELAY_SECONDS);
     }

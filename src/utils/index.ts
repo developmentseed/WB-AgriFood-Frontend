@@ -9,6 +9,7 @@ export function reducerLogger<S, A>(reducer: Reducer<S, A>): Reducer<S, A> {
     if (import.meta.env.MODE === "production") {
       return reducer(state, action);
     } else {
+      /* eslint-disable no-console */
       console.log(
         "%cPrevious State:",
         "color: #9E9E9E; font-weight: 700;",
@@ -21,6 +22,7 @@ export function reducerLogger<S, A>(reducer: Reducer<S, A>): Reducer<S, A> {
         "color: #47B04B; font-weight: 700;",
         nextState,
       );
+      /* eslint-enable no-console */
       return nextState;
     }
   };
