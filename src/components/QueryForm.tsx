@@ -6,7 +6,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { useState } from "react";
-import { ChatStatus } from "../chat-reducer";
+import { ChatStatus } from "../hooks/use-chat";
 
 interface QueryFormProps {
   sendQuery: (query: string) => void;

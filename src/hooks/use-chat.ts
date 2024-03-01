@@ -1,33 +1,15 @@
 import { useReducer } from "react";
 
-type Role = "assistant" | "user";
-
-export type Message = {
-  id: string;
-  assistant_id: string | null;
-  content: Content[];
-  created_at: number;
-  file_ids: string[];
-  metadata: Record<string, unknown>; // Object with unknown structure
-  object: string;
-  role: Role;
-  run_id: string | null;
-  thread_id: string;
-};
-
-type Content = {
-  text: {
-    value: string;
-  };
-  type: "text";
-};
-
-export type ChatStatus = "idle" | "loading" | "error";
+import { ChatStatus, ChatMessage } from "../types/chat";
+import { createThread, fetchThreadRunStatus, postMessage } from "../utils/api";
+import { delaySeconds } from "../utils";
 
 interface ChatState {
   status: ChatStatus;
   threadId: string | null;
-  currentMessages: Message[];
+  runId: string | null;
+  runStatus: string | null;
+  currentMessages: ChatMessage[];
 }
 
 type ChatAction =
@@ -39,17 +21,28 @@ type ChatAction =
       };
     }
   | {
+      type: "START_RUN";
+      payload: {
+        runId: string;
+      };
+    }
+  | {
       type: "RECEIVE_MESSAGES";
-      payload: Message[];
+      payload: ChatMessage[];
     };
 
 const initialState: ChatState = {
   status: "idle",
   threadId: null,
+  runId: null,
+  runStatus: null,
   currentMessages: [],
 };
 
 const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
+  // Logs
+  console.log(`threadId: ${state.threadId}`, `status: ${state.status}`);
+
   switch (action.type) {
     case "SET_STATUS": {
       return {
@@ -63,6 +56,12 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         threadId: action.payload.threadId,
       };
     }
+    case "START_RUN": {
+      return {
+        ...state,
+        runId: action.payload.runId,
+      };
+    }
     case "RECEIVE_MESSAGES": {
       return {
         ...state,
@@ -74,7 +73,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
   }
 };
 
-export default function useChatReducer() {
+export default function useChat() {
   const [state, dispatch] = useReducer(chatReducer, initialState);
   const sendQuery = async (query: string) => {
     try {
@@ -85,19 +84,7 @@ export default function useChatReducer() {
 
       let threadId = state.threadId;
       if (!threadId) {
-        const response = await fetch(
-          `https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com/threads`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ query }),
-          },
-        );
-        const thread = (await response.json()) as { id: string };
-
-        threadId = thread.id;
+        threadId = await createThread(query);
 
         dispatch({
           type: "START_THREAD",
@@ -107,18 +94,25 @@ export default function useChatReducer() {
         });
       }
 
-      await fetch(
-        `https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com/threads/${threadId}/messages`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            message: query,
-          }),
+      await delaySeconds(5);
+
+      const { runId } = await postMessage(threadId, query);
+
+      dispatch({
+        type: "START_RUN",
+        payload: {
+          runId,
         },
-      ).then((response) => response.json());
+      });
+
+      await delaySeconds(5);
+
+      let runStatus = "in_progress";
+      while (runStatus !== "completed") {
+        runStatus = await fetchThreadRunStatus(threadId, runId);
+        console.log(runStatus);
+        await delaySeconds(5);
+      }
 
       const messages = (await fetch(
         `https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com/threads/${threadId}/messages`,
@@ -128,7 +122,7 @@ export default function useChatReducer() {
             "Content-Type": "application/json",
           },
         },
-      ).then((response) => response.json())) as Message[];
+      ).then((response) => response.json())) as ChatMessage[];
 
       dispatch({
         type: "RECEIVE_MESSAGES",

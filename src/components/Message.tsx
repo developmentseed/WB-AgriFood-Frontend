@@ -1,15 +1,15 @@
 import { Text, Flex, Avatar, HStack, Image } from "@chakra-ui/react";
-import 'github-markdown-css'
+import "github-markdown-css";
 import Markdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import supersub from "remark-supersub";
-import remarkMath from 'remark-math'
+import remarkMath from "remark-math";
 
 import "./markdown.css";
-import type { Message } from "../chat-reducer";
+import { ChatMessage } from "../types/chat";
 
-export default function Message({ message }: { message: Message }) {
+export default function Message({ message }: { message: ChatMessage }) {
   const content = message.content[0].text.value;
   const assistantMessage = message.role === "assistant";
   return (
@@ -42,10 +42,8 @@ export default function Message({ message }: { message: Message }) {
                 if (!props.title) {
                   return <a {...props} />;
                 }
-                return (
-                    <a {...props} title={undefined} />
-                );
-              }
+                return <a {...props} title={undefined} />;
+              },
             }}
           >
             {content}
