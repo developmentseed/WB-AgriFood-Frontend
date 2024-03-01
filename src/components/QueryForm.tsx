@@ -31,7 +31,7 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
           <Input
             placeholder={
               isLoading
-                ? "Sending your message to Agrifood Data Lab..."
+                ? "Processing..."
                 : "Send a message to AgriFood Data Lab"
             }
             textOverflow="ellipsis"
