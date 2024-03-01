@@ -59,22 +59,9 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
           // Add a processing message to the list of messages
           {
             id: "processing",
-            assistant_id: null,
-            content: [
-              {
-                text: {
-                  value: action.payload.query,
-                },
-                type: "text",
-              },
-            ],
-            created_at: Date.now(),
-            file_ids: [],
-            metadata: {},
-            object: "message",
+            markdown: action.payload.query,
+            metadata: null,
             role: "user",
-            run_id: null,
-            thread_id: state.threadId!,
           },
         ],
         status: "loading",
@@ -117,7 +104,8 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
 export default function useChat() {
   const [state, dispatch] = useReducer(
-    reducerLogger(chatReducer),
+    chatReducer,
+    // reducerLogger(chatReducer),
     initialState,
   );
   const sendQuery = useCallback(

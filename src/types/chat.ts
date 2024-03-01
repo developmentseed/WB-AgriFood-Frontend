@@ -2,15 +2,9 @@ export type ChatRole = "assistant" | "user";
 
 export type ChatMessage = {
   id: string;
-  assistant_id: string | null;
-  content: Content[];
-  created_at: number;
-  file_ids: string[];
-  metadata: Record<string, unknown>; // Object with unknown structure
-  object: string;
+  markdown: string;
+  metadata: Record<string, unknown> | null;
   role: ChatRole;
-  run_id: string | null;
-  thread_id: string;
 };
 
 export type Content = {

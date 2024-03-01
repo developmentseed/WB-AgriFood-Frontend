@@ -9,8 +9,69 @@ import remarkMath from "remark-math";
 import "./markdown.css";
 import { ChatMessage } from "../types/chat";
 
+const MarkdownContent = ({ markdown }: { markdown: string }) => {
+  return (
+    <Markdown
+      remarkPlugins={[remarkBreaks, remarkGfm, supersub, remarkMath]}
+      className={`markdown-body markdown-custom-styles`}
+      components={{
+        a: ({ ...props }) => {
+          // eslint-disable-next-line react/prop-types
+          if (!props.title) {
+            return <a {...props} />;
+          }
+          return <a {...props} title={undefined} />;
+        },
+      }}
+    >
+      {markdown}
+    </Markdown>
+  );
+};
+
+const MetadataContent = ({
+  metadata,
+}: {
+  metadata: Record<string, unknown>;
+}) => {
+  // metadata must be an array
+  if (!Array.isArray(metadata)) {
+    return (
+      <div>
+        <Text fontWeight="bold">Here is some unstructured data:</Text>
+        <Text>{JSON.stringify(metadata)}</Text>
+      </div>
+    );
+  }
+
+  return (
+    <Flex direction="column">
+      {metadata.map((m) => {
+        return (
+          <Flex key={m.id} direction="row">
+            <Text fontWeight="bold">{m.name}</Text>
+            <ul>
+              {Object.keys(m).map((key) => {
+                if (key === "id" || key === "name") {
+                  return null;
+                }
+                return (
+                  <li key={key}>
+                    <Text fontWeight="bold">{key}</Text>
+                    <Text>{m[key]}</Text>
+                  </li>
+                );
+              })}
+            </ul>
+          </Flex>
+        );
+      })}
+    </Flex>
+  );
+};
+
 export default function Message({ message }: { message: ChatMessage }) {
-  const content = message.content[0].text.value;
+  const { markdown, metadata } = message;
   const assistantMessage = message.role === "assistant";
   return (
     <Flex
@@ -32,23 +93,11 @@ export default function Message({ message }: { message: ChatMessage }) {
         </Text>
       </HStack>
       <Flex my={1} pl={8}>
-        <Text>
-          <Markdown
-            remarkPlugins={[remarkBreaks, remarkGfm, supersub, remarkMath]}
-            className={`markdown-body markdown-custom-styles`}
-            components={{
-              a: ({ ...props }) => {
-                // eslint-disable-next-line react/prop-types
-                if (!props.title) {
-                  return <a {...props} />;
-                }
-                return <a {...props} title={undefined} />;
-              },
-            }}
-          >
-            {content}
-          </Markdown>
-        </Text>
+        {metadata ? (
+          <MetadataContent metadata={metadata} />
+        ) : (
+          <MarkdownContent markdown={markdown} />
+        )}
       </Flex>
     </Flex>
   );

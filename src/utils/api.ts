@@ -86,5 +86,34 @@ export async function postMessage(
 }
 
 export async function fetchMessages(threadId: string): Promise<ChatMessage[]> {
-  return fetchAPI<ChatMessage[]>(`/threads/${threadId}/messages`, "GET");
+  let messages = await fetchAPI<ChatMessage[]>(
+    `/threads/${threadId}/messages`,
+    "GET",
+  );
+
+  messages = messages.map((m) => {
+    const markdown = m.content[0].text.value;
+
+    let json;
+    let metadata = null;
+
+    if (markdown.indexOf("```json") > -1) {
+      const jsonStart = markdown.indexOf("```json") + 7;
+      const jsonEnd = markdown.indexOf("```", jsonStart);
+      json = markdown.substring(jsonStart, jsonEnd).replace(/\n/g, "");
+      try {
+        metadata = JSON.parse(json) as Record<string, unknown>;
+      } catch (error) {
+        // do nothing when JSON parsing fails
+      }
+    }
+
+    return {
+      ...m,
+      markdown,
+      metadata,
+    };
+  });
+
+  return messages;
 }
