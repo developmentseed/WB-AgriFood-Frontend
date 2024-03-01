@@ -1,7 +1,12 @@
 import { useReducer } from "react";
 
 import { ChatStatus, ChatMessage } from "../types/chat";
-import { createThread, fetchThreadRunStatus, postMessage } from "../utils/api";
+import {
+  createThread,
+  fetchMessages,
+  fetchThreadRunStatus,
+  postMessage,
+} from "../utils/api";
 import { delaySeconds } from "../utils";
 
 interface ChatState {
@@ -94,8 +99,6 @@ export default function useChat() {
         });
       }
 
-      await delaySeconds(5);
-
       const { runId } = await postMessage(threadId, query);
 
       dispatch({
@@ -105,24 +108,15 @@ export default function useChat() {
         },
       });
 
-      await delaySeconds(5);
-
       let runStatus = "in_progress";
       while (runStatus !== "completed") {
         runStatus = await fetchThreadRunStatus(threadId, runId);
-        console.log(runStatus);
-        await delaySeconds(5);
+        if (runStatus !== "completed") {
+          await delaySeconds(5);
+        }
       }
 
-      const messages = (await fetch(
-        `https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com/threads/${threadId}/messages`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      ).then((response) => response.json())) as ChatMessage[];
+      const messages = await fetchMessages(threadId);
 
       dispatch({
         type: "RECEIVE_MESSAGES",
