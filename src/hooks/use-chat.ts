@@ -1,4 +1,4 @@
-import { useReducer } from "react";
+import { useReducer, useCallback } from "react";
 
 import { ChatStatus, ChatMessage } from "../types/chat";
 import {
@@ -14,11 +14,14 @@ interface ChatState {
   threadId: string | null;
   runId: string | null;
   runStatus: string | null;
+  currentQuery: string | null;
   currentMessages: ChatMessage[];
 }
 
 type ChatAction =
-  | { type: "SET_STATUS"; payload: ChatStatus }
+  | { type: "SEND_QUERY_START"; payload: { query: string } }
+  | { type: "SEND_QUERY_SUCCESS"; payload: { messages: ChatMessage[] } }
+  | { type: "SEND_QUERY_ERROR" }
   | {
       type: "START_THREAD";
       payload: {
@@ -41,18 +44,39 @@ const initialState: ChatState = {
   threadId: null,
   runId: null,
   runStatus: null,
+  currentQuery: null,
   currentMessages: [],
 };
 
 const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
-  // Logs
-  console.log(`threadId: ${state.threadId}`, `status: ${state.status}`);
-
   switch (action.type) {
-    case "SET_STATUS": {
+    case "SEND_QUERY_START": {
       return {
         ...state,
-        status: action.payload,
+        currentQuery: action.payload.query,
+        currentMessages: [
+          ...state.currentMessages,
+          {
+            id: "processing",
+            assistant_id: null,
+            content: [
+              {
+                text: {
+                  value: action.payload.query,
+                },
+                type: "text",
+              },
+            ],
+            created_at: Date.now(),
+            file_ids: [],
+            metadata: {},
+            object: "message",
+            role: "user",
+            run_id: null,
+            thread_id: state.threadId!,
+          },
+        ],
+        status: "loading",
       };
     }
     case "START_THREAD": {
@@ -67,10 +91,18 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         runId: action.payload.runId,
       };
     }
-    case "RECEIVE_MESSAGES": {
+    case "SEND_QUERY_SUCCESS": {
       return {
         ...state,
-        currentMessages: action.payload,
+        status: "idle",
+        currentQuery: null,
+        currentMessages: action.payload.messages,
+      };
+    }
+    case "SEND_QUERY_ERROR": {
+      return {
+        ...state,
+        status: "error",
       };
     }
     default:
@@ -80,61 +112,62 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
 export default function useChat() {
   const [state, dispatch] = useReducer(chatReducer, initialState);
-  const sendQuery = async (query: string) => {
-    try {
-      dispatch({
-        type: "SET_STATUS",
-        payload: "loading",
-      });
-
-      let threadId = state.threadId;
-      if (!threadId) {
-        threadId = await createThread(query);
-
+  const sendQuery = useCallback(
+    async (query: string) => {
+      try {
         dispatch({
-          type: "START_THREAD",
+          type: "SEND_QUERY_START",
           payload: {
-            threadId,
+            query,
           },
         });
-      }
 
-      const { runId } = await postMessage(threadId, query);
+        let threadId = state.threadId;
+        if (!threadId) {
+          threadId = await createThread(query);
 
-      dispatch({
-        type: "START_RUN",
-        payload: {
-          runId,
-        },
-      });
-
-      let runStatus = "in_progress";
-      while (runStatus !== "completed") {
-        runStatus = await fetchThreadRunStatus(threadId, runId);
-        if (runStatus !== "completed") {
-          await delaySeconds(5);
+          dispatch({
+            type: "START_THREAD",
+            payload: {
+              threadId,
+            },
+          });
         }
+
+        const { runId } = await postMessage(threadId, query);
+
+        dispatch({
+          type: "START_RUN",
+          payload: {
+            runId,
+          },
+        });
+
+        let runStatus = "in_progress";
+        while (runStatus !== "completed") {
+          runStatus = await fetchThreadRunStatus(threadId, runId);
+          if (runStatus !== "completed") {
+            await delaySeconds(5);
+          }
+        }
+
+        const messages = await fetchMessages(threadId);
+
+        dispatch({
+          type: "SEND_QUERY_SUCCESS",
+          payload: {
+            messages: messages.sort((a, b) => a.created_at - b.created_at),
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching thread ID:", error);
+        dispatch({
+          type: "SEND_QUERY_ERROR",
+        });
       }
-
-      const messages = await fetchMessages(threadId);
-
-      dispatch({
-        type: "RECEIVE_MESSAGES",
-        payload: messages.sort((a, b) => a.created_at - b.created_at),
-      });
-
-      dispatch({
-        type: "SET_STATUS",
-        payload: "idle",
-      });
-    } catch (error) {
-      console.error("Error fetching thread ID:", error);
-      dispatch({
-        type: "SET_STATUS",
-        payload: "error",
-      });
-    }
-  };
+    },
+    [state.threadId],
+  );
 
   return { state, sendQuery: sendQuery as (query: string) => void };
 }
