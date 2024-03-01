@@ -5,13 +5,13 @@ import Layout from "./components/Layout";
 import LandingState from "./components/LandingState";
 import QueryForm from "./components/QueryForm";
 import Conversation from "./components/Conversation";
-import useChatReducer from "./chat-reducer";
+import useChat from "./hooks/use-chat";
 
 function App() {
   const {
     state: { currentMessages, status },
     sendQuery = () => {},
-  } = useChatReducer();
+  } = useChat();
 
   const isLoading = status !== "loading";
 
