@@ -1,5 +1,5 @@
 import { useReducer, useCallback } from "react";
-
+import { toast } from "react-toastify";
 import { ChatStatus, ChatMessage } from "../types/chat";
 import {
   createThread,
@@ -7,7 +7,7 @@ import {
   fetchThreadRunStatus,
   postMessage,
 } from "../utils/api";
-import { delaySeconds } from "../utils";
+import { delaySeconds, reducerLogger } from "../utils";
 
 interface ChatState {
   status: ChatStatus;
@@ -56,6 +56,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         currentQuery: action.payload.query,
         currentMessages: [
           ...state.currentMessages,
+          // Add a processing message to the list of messages
           {
             id: "processing",
             assistant_id: null,
@@ -103,6 +104,10 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         status: "error",
+        // Clear the processing message
+        currentMessages: state.currentMessages.filter(
+          (m) => m.id !== "processing",
+        ),
       };
     }
     default:
@@ -111,7 +116,10 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 };
 
 export default function useChat() {
-  const [state, dispatch] = useReducer(chatReducer, initialState);
+  const [state, dispatch] = useReducer(
+    reducerLogger(chatReducer),
+    initialState,
+  );
   const sendQuery = useCallback(
     async (query: string) => {
       try {
@@ -161,6 +169,7 @@ export default function useChat() {
         });
       } catch (error) {
         console.error("Error fetching thread ID:", error);
+        toast.error("Failed to send message to AgriFood Data Lab");
         dispatch({
           type: "SEND_QUERY_ERROR",
         });

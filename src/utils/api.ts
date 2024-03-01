@@ -21,7 +21,17 @@ async function fetchAPI<T>(
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch from ${endpoint}`);
+        if (response.status === 503) {
+          // Only retry on 503 errors
+          throw new Error(
+            `Service Unavailable - Retry attempt ${attempts + 1}`,
+          );
+        } else {
+          attempts = maxRetries; // Exit loop on non-503 errors
+          throw new Error(
+            `Failed to fetch from ${endpoint} with status: ${response.status}`,
+          );
+        }
       }
 
       return (await response.json()) as T;
@@ -48,10 +58,15 @@ export async function fetchThreadRunStatus(
   threadId: string,
   runId: string,
 ): Promise<ChatThreadRunStatus> {
-  const { status } = await fetchAPI<{ status: ChatThreadRunStatus }>(
+  const { status } = await fetchAPI<{ status: string }>(
     `/threads/${threadId}/runs/${runId}/status`,
     "GET",
   );
+
+  if (status !== "in_progress" && status !== "completed") {
+    throw new Error(`Unexpected status: ${status}`);
+  }
+
   return status;
 }
 
