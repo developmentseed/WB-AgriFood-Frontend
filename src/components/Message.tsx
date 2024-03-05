@@ -64,7 +64,9 @@ const MetadataContent = ({
   return (
     <>
       <Divider ml={[-4, null, 0]} pt={[4, null, 0]} />
-      <Heading size="md" as="h3" ml={[-4, null, 0]}>Results</Heading>
+      <Heading size="md" as="h3" ml={[-4, null, 0]}>
+        Results
+      </Heading>
       <SimpleGrid
         spacing={4}
         ml={[-4, null, 0]}
@@ -90,14 +92,26 @@ const MetadataContent = ({
                   </Heading>
                 </CardHeader>
                 <CardBody gap={4} pt={0}>
-                  <Stack spacing="4" alignItems={"flex-start"}>
-                    <Flex
-                      justifyContent={"space-between"}
-                      alignItems={"center"}
-                      width="100%"
-                    >
+                  <Stack spacing="2" alignItems={"flex-start"} height="100%">
+                    <Flex alignItems={"center"} width="100%" gap={4}>
+                      {m.type && (
+                        <Tag size="sm" colorScheme={typeTagColor[m.type]}>
+                          {m.type.toUpperCase()}
+                        </Tag>
+                      )}
+                      {m.id && (
+                        <Text
+                          fontSize="xs"
+                          color="gray.400"
+                          fontWeight="bold"
+                          textTransform={"uppercase"}
+                        >
+                          ID: {m.id}
+                        </Text>
+                      )}
                       {m._distance && (
                         <Badge
+                          ml="auto"
                           fontSize="xs"
                           variant={
                             m._distance > 0.463
@@ -115,26 +129,24 @@ const MetadataContent = ({
                               : "Match"}
                         </Badge>
                       )}
-                      {m.type && (
-                        <Tag size="sm" colorScheme={typeTagColor[m.type]}>
-                          {m.type.toUpperCase()}
-                        </Tag>
-                      )}
                     </Flex>
-                    {m.description && (
-                      <Box>
-                        <Heading
-                          size="xs"
-                          color="gray.400"
-                          textTransform={"uppercase"}
-                        >
-                          Description
-                        </Heading>
-                        <Text fontSize="sm">{m.description}</Text>
-                      </Box>
-                    )}
+                    {m.description ||
+                      (m.text_to_embed && (
+                        <Box>
+                          <Heading
+                            size="xs"
+                            color="gray.400"
+                            textTransform={"uppercase"}
+                          >
+                            Description
+                          </Heading>
+                          <Text fontSize="sm">
+                            {m.description || m.text_to_embed}
+                          </Text>
+                        </Box>
+                      ))}
                     {m.explanation && (
-                      <Box>
+                      <Box mt="auto">
                         <details>
                           <Text
                             as="summary"
