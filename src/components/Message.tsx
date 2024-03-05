@@ -130,9 +130,10 @@ const MetadataContent = ({
                       )}
                     </Flex>
                     {m.description ||
+                      m.summary ||
                       (m.text_to_embed && (
                         <Text fontSize="sm" py={2}>
-                          {m.description || m.text_to_embed}
+                          {m.description || m.summary || m.text_to_embed}
                         </Text>
                       ))}
                     {m.explanation && (
@@ -150,13 +151,15 @@ const MetadataContent = ({
                         </details>
                       </Box>
                     )}
-                    {m.url && (
+                    {m.url || m.link && (
                       <Button
-                        size="sm"
+                        size="xs"
                         as="a"
-                        href={m.url}
-                        title={m.url}
+                        href={m.url || m.link}
+                        title={m.url || m.link}
                         target="_blank"
+                        variant="outline"
+                        colorScheme="blue"
                       >
                         Visit
                       </Button>
