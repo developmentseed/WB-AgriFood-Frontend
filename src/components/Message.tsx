@@ -9,8 +9,12 @@ import {
   CardHeader,
   CardBody,
   SimpleGrid,
-  List,
-  ListItem,
+  Tag,
+  Box,
+  Stack,
+  Button,
+  Badge,
+  Divider,
 } from "@chakra-ui/react";
 import "github-markdown-css";
 import Markdown from "react-markdown";
@@ -58,32 +62,110 @@ const MetadataContent = ({
   }
 
   return (
-    <SimpleGrid spacing={4} w="100%" templateColumns='repeat(auto-fill, minmax(320px, 1fr))'>
-      {metadata.map((m) => {
-        return (
-          <Card key={m.id}>
-            <CardHeader>
-              <Heading size="sm" as="h4">{m.name}</Heading>
-            </CardHeader>
-            <CardBody>
-              <List spacing={2}>
-                {Object.keys(m).map((key) => {
-                  if (key === "id" || key === "name") {
-                    return null;
-                  }
-                  return (
-                    <ListItem as="dl" key={key}>
-                      <Heading as="dt" size="xs" color="gray.400" textTransform={"uppercase"}>{key}</Heading>
-                      <Text as="dd">{m[key]}</Text>
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </CardBody>
-          </Card>
-        );
-      })}
-    </SimpleGrid>
+    <>
+      <Divider ml={[-4, null, 0]} pt={[4, null, 0]} />
+      <Heading size="md" as="h3" ml={[-4, null, 0]}>Results</Heading>
+      <SimpleGrid
+        spacing={4}
+        ml={[-4, null, 0]}
+        w="100%"
+        templateColumns="repeat(auto-fill, minmax(20rem, 1fr))"
+      >
+        {metadata
+          .sort((a, b) => b._distance - a._distance)
+          .map((m) => {
+            console.log(m);
+            const typeTagColor = {
+              app: "red",
+              dataset: "blue",
+              microdataset: "cyan",
+              video: "purple",
+              project: "orange",
+            };
+            return (
+              <Card key={m.id} size={["sm", null, "md"]}>
+                <CardHeader>
+                  <Heading size="sm" as="h4">
+                    {m.name}
+                  </Heading>
+                </CardHeader>
+                <CardBody gap={4} pt={0}>
+                  <Stack spacing="4" alignItems={"flex-start"}>
+                    <Flex
+                      justifyContent={"space-between"}
+                      alignItems={"center"}
+                      width="100%"
+                    >
+                      {m._distance && (
+                        <Badge
+                          fontSize="xs"
+                          variant={
+                            m._distance > 0.463
+                              ? "solid"
+                              : m._distance > 0.35
+                                ? "subtle"
+                                : "outline"
+                          }
+                          colorScheme="green"
+                        >
+                          {m._distance > 0.463
+                            ? "Best Match"
+                            : m._distance > 0.35
+                              ? "Good Match"
+                              : "Match"}
+                        </Badge>
+                      )}
+                      {m.type && (
+                        <Tag size="sm" colorScheme={typeTagColor[m.type]}>
+                          {m.type.toUpperCase()}
+                        </Tag>
+                      )}
+                    </Flex>
+                    {m.description && (
+                      <Box>
+                        <Heading
+                          size="xs"
+                          color="gray.400"
+                          textTransform={"uppercase"}
+                        >
+                          Description
+                        </Heading>
+                        <Text fontSize="sm">{m.description}</Text>
+                      </Box>
+                    )}
+                    {m.explanation && (
+                      <Box>
+                        <details>
+                          <Text
+                            as="summary"
+                            fontSize="sm"
+                            color="gray.400"
+                            textTransform={"uppercase"}
+                          >
+                            Why this result?
+                          </Text>
+                          <Text fontSize="sm">{m.explanation}</Text>
+                        </details>
+                      </Box>
+                    )}
+                    {m.url && (
+                      <Button
+                        size="sm"
+                        as="a"
+                        href={m.url}
+                        title={m.url}
+                        target="_blank"
+                      >
+                        Visit
+                      </Button>
+                    )}
+                  </Stack>
+                </CardBody>
+              </Card>
+            );
+          })}
+      </SimpleGrid>
+    </>
   );
 };
 
@@ -93,7 +175,7 @@ export default function Message({ message }: { message: ChatMessage }) {
   return (
     <Flex
       w="100%"
-      maxW={["65ch", "55rem", "72rem"]}
+      maxW={["48rem", "56rem", "64rem"]}
       mx="auto"
       direction="column"
       mb={2}
@@ -109,7 +191,7 @@ export default function Message({ message }: { message: ChatMessage }) {
           {assistantMessage ? "WB Agrifood Data Lab" : "You"}
         </Text>
       </HStack>
-      <Flex my={1} pl={8} w="100%">
+      <Flex my={1} pl={8} w="100%" direction="column" gap="4">
         {metadata ? (
           <MetadataContent metadata={metadata} />
         ) : (
