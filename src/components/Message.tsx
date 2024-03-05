@@ -132,18 +132,9 @@ const MetadataContent = ({
                     </Flex>
                     {m.description ||
                       (m.text_to_embed && (
-                        <Box>
-                          <Heading
-                            size="xs"
-                            color="gray.400"
-                            textTransform={"uppercase"}
-                          >
-                            Description
-                          </Heading>
-                          <Text fontSize="sm">
-                            {m.description || m.text_to_embed}
-                          </Text>
-                        </Box>
+                        <Text fontSize="sm" py={2}>
+                          {m.description || m.text_to_embed}
+                        </Text>
                       ))}
                     {m.explanation && (
                       <Box mt="auto">
@@ -156,7 +147,7 @@ const MetadataContent = ({
                           >
                             Why this result?
                           </Text>
-                          <Text fontSize="sm">{m.explanation}</Text>
+                          <Text fontSize="xs">{m.explanation}</Text>
                         </details>
                       </Box>
                     )}
