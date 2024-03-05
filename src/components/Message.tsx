@@ -76,7 +76,6 @@ const MetadataContent = ({
         {metadata
           .sort((a, b) => b._distance - a._distance)
           .map((m) => {
-            console.log(m);
             const typeTagColor = {
               app: "red",
               dataset: "blue",
