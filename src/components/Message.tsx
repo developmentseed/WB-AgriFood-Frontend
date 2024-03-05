@@ -1,4 +1,17 @@
-import { Text, Flex, Avatar, HStack, Image } from "@chakra-ui/react";
+import {
+  Text,
+  Flex,
+  Avatar,
+  HStack,
+  Heading,
+  Image,
+  Card,
+  CardHeader,
+  CardBody,
+  SimpleGrid,
+  List,
+  ListItem,
+} from "@chakra-ui/react";
 import "github-markdown-css";
 import Markdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
@@ -45,28 +58,32 @@ const MetadataContent = ({
   }
 
   return (
-    <Flex direction="column">
+    <SimpleGrid spacing={4} w="100%" templateColumns='repeat(auto-fill, minmax(320px, 1fr))'>
       {metadata.map((m) => {
         return (
-          <Flex key={m.id} direction="row">
-            <Text fontWeight="bold">{m.name}</Text>
-            <ul>
-              {Object.keys(m).map((key) => {
-                if (key === "id" || key === "name") {
-                  return null;
-                }
-                return (
-                  <li key={key}>
-                    <Text fontWeight="bold">{key}</Text>
-                    <Text>{m[key]}</Text>
-                  </li>
-                );
-              })}
-            </ul>
-          </Flex>
+          <Card key={m.id}>
+            <CardHeader>
+              <Heading size="sm" as="h4">{m.name}</Heading>
+            </CardHeader>
+            <CardBody>
+              <List spacing={2}>
+                {Object.keys(m).map((key) => {
+                  if (key === "id" || key === "name") {
+                    return null;
+                  }
+                  return (
+                    <ListItem as="dl" key={key}>
+                      <Heading as="dt" size="xs" color="gray.400" textTransform={"uppercase"}>{key}</Heading>
+                      <Text as="dd">{m[key]}</Text>
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </CardBody>
+          </Card>
         );
       })}
-    </Flex>
+    </SimpleGrid>
   );
 };
 
@@ -76,7 +93,7 @@ export default function Message({ message }: { message: ChatMessage }) {
   return (
     <Flex
       w="100%"
-      maxW={["65ch", "75ch"]}
+      maxW={["65ch", "55rem", "72rem"]}
       mx="auto"
       direction="column"
       mb={2}
@@ -92,7 +109,7 @@ export default function Message({ message }: { message: ChatMessage }) {
           {assistantMessage ? "WB Agrifood Data Lab" : "You"}
         </Text>
       </HStack>
-      <Flex my={1} pl={8}>
+      <Flex my={1} pl={8} w="100%">
         {metadata ? (
           <MetadataContent metadata={metadata} />
         ) : (
