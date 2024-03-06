@@ -33,7 +33,7 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
         sendQuery(localQuestion);
       }}
     >
-      <FormControl maxW="75ch" mx="auto">
+      <FormControl maxW={["48rem", "56rem", "64rem"]} mx="auto">
         <InputGroup size={["sm", "md"]} justifyContent="space-between">
           <Input
             ref={inputRef}
