@@ -104,8 +104,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 
 export default function useChat() {
   const [state, dispatch] = useReducer(
-    chatReducer,
-    // reducerLogger(chatReducer),
+    reducerLogger(chatReducer),
     initialState,
   );
   const sendQuery = useCallback(
