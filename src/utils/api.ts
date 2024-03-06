@@ -1,5 +1,6 @@
 import { delaySeconds } from ".";
-import { ChatMessage, ChatThreadRunStatus } from "../types/chat";
+import { ChatMessage, ChatThreadRunStatus, DataType } from "../types/chat";
+import { AssistantMessage } from "../types/assistant-message";
 
 const API_BASE_URL = "https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com";
 const MAX_RETRIES = 10;
@@ -60,11 +61,13 @@ export async function fetchThreadRunStatus(
     "GET",
   );
 
-  if (status !== "in_progress" && status !== "completed") {
+  if (
+    !["in_progress", "completed", "queue", "requires_action"].includes(status)
+  ) {
     throw new Error(`Unexpected status: ${status}`);
   }
 
-  return status;
+  return status as ChatThreadRunStatus;
 }
 
 export async function postMessage(
@@ -86,30 +89,44 @@ export async function postMessage(
 }
 
 export async function fetchMessages(threadId: string): Promise<ChatMessage[]> {
-  let messages = await fetchAPI<ChatMessage[]>(
+  const assistantMessages = await fetchAPI<AssistantMessage[]>(
     `/threads/${threadId}/messages`,
     "GET",
   );
 
-  messages = messages.map((m) => {
-    const markdown = m.content[0].text.value;
+  const messages = assistantMessages.map((m) => {
+    const fullMarkdown = m.content[0].text.value;
 
     let json;
     let metadata = null;
+    let markdown = fullMarkdown;
 
-    if (markdown.indexOf("```json") > -1) {
-      const jsonStart = markdown.indexOf("```json") + 7;
-      const jsonEnd = markdown.indexOf("```", jsonStart);
-      json = markdown.substring(jsonStart, jsonEnd).replace(/\n/g, "");
+    const jsonMarker = "```json";
+
+    if (fullMarkdown.indexOf(jsonMarker) > -1) {
+      const jsonStart = fullMarkdown.indexOf(jsonMarker) + 7;
+      const jsonEnd = fullMarkdown.indexOf("```", jsonStart);
+      json = fullMarkdown.substring(jsonStart, jsonEnd).replace(/\n/g, "");
       try {
-        metadata = JSON.parse(json) as Record<string, unknown>;
+        const parsedJson = JSON.parse(json) as Record<string, unknown>;
+        if (Array.isArray(parsedJson)) {
+          metadata = parsedJson as DataType[];
+        }
       } catch (error) {
         // do nothing when JSON parsing fails
       }
+
+      // Strip out the JSON from the markdown
+      markdown =
+        `${fullMarkdown.substring(0, jsonStart - 7)}${fullMarkdown.substring(
+          jsonEnd + 3,
+        )}`.trim();
     }
 
     return {
-      ...m,
+      id: m.id,
+      role: m.role,
+      created_at: m.created_at,
       markdown,
       metadata,
     };

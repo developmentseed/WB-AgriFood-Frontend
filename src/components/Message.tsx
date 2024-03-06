@@ -24,7 +24,7 @@ import supersub from "remark-supersub";
 import remarkMath from "remark-math";
 
 import "./markdown.css";
-import { ChatMessage } from "../types/chat";
+import { ChatMessage, DataType } from "../types/chat";
 
 const MarkdownContent = ({ markdown }: { markdown: string }) => {
   return (
@@ -46,21 +46,7 @@ const MarkdownContent = ({ markdown }: { markdown: string }) => {
   );
 };
 
-const MetadataContent = ({
-  metadata,
-}: {
-  metadata: Record<string, unknown>;
-}) => {
-  // metadata must be an array
-  if (!Array.isArray(metadata)) {
-    return (
-      <div>
-        <Text fontWeight="bold">Here is some unstructured data:</Text>
-        <Text>{JSON.stringify(metadata)}</Text>
-      </div>
-    );
-  }
-
+const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
   return (
     <>
       <Divider ml={[-4, null, 0]} pt={[4, null, 0]} />
@@ -74,7 +60,7 @@ const MetadataContent = ({
         templateColumns="repeat(auto-fill, minmax(20rem, 1fr))"
       >
         {metadata
-          .sort((a, b) => b._distance - a._distance)
+          .sort((a, b) => (b._distance || 0) - (a._distance || 0)) // Sort by distance, use 0 if undefined
           .map((m) => {
             const typeTagColor = {
               app: "red",
@@ -151,19 +137,20 @@ const MetadataContent = ({
                         </details>
                       </Box>
                     )}
-                    {m.url || m.link && (
-                      <Button
-                        size="xs"
-                        as="a"
-                        href={m.url || m.link}
-                        title={m.url || m.link}
-                        target="_blank"
-                        variant="outline"
-                        colorScheme="blue"
-                      >
-                        Visit
-                      </Button>
-                    )}
+                    {m.url ||
+                      (m.link && (
+                        <Button
+                          size="xs"
+                          as="a"
+                          href={m.url || m.link}
+                          title={m.url || m.link}
+                          target="_blank"
+                          variant="outline"
+                          colorScheme="blue"
+                        >
+                          Visit
+                        </Button>
+                      ))}
                   </Stack>
                 </CardBody>
               </Card>
@@ -197,11 +184,8 @@ export default function Message({ message }: { message: ChatMessage }) {
         </Text>
       </HStack>
       <Flex my={1} pl={8} w="100%" direction="column" gap="4">
-        {metadata ? (
-          <MetadataContent metadata={metadata} />
-        ) : (
-          <MarkdownContent markdown={markdown} />
-        )}
+        {markdown?.length > 0 && <MarkdownContent markdown={markdown} />}
+        {metadata && <MetadataContent metadata={metadata} />}
       </Flex>
     </Flex>
   );

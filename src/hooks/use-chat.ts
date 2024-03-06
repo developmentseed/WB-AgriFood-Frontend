@@ -59,6 +59,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
           // Add a processing message to the list of messages
           {
             id: "processing",
+            created_at: Date.now(),
             markdown: action.payload.query,
             metadata: null,
             role: "user",
