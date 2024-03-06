@@ -3,17 +3,18 @@ import { ChatMessage, ChatThreadRunStatus, DataType } from "../types/chat";
 import { AssistantMessage } from "../types/assistant-message";
 
 const API_BASE_URL = "https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com";
-const MAX_RETRIES = 10;
-const RETRY_DELAY_SECONDS = 5;
+export const MAX_ATTEMPTS = 10;
+export const RETRY_DELAY_SECONDS = 5;
 
 async function fetchAPI<T>(
   endpoint: string,
   method: string,
   body?: Record<string, unknown>,
-  maxRetries: number = MAX_RETRIES, // Include maxRetries parameter with a default of 10 retries
+  maxAttempts: number = MAX_ATTEMPTS,
 ): Promise<T> {
   let attempts = 0;
-  while (attempts < maxRetries) {
+  while (attempts < maxAttempts) {
+    attempts += 1;
     try {
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method,
@@ -23,28 +24,30 @@ async function fetchAPI<T>(
 
       if (!response.ok) {
         if (response.status === 503) {
-          // Only retry on 503 errors
-          throw new Error(
-            `Service Unavailable - Retry attempt ${attempts + 1}`,
-          );
+          // If it's a 503 error and not the last attempt, it will retry after the delay
+          if (attempts < maxAttempts) {
+            await delaySeconds(RETRY_DELAY_SECONDS);
+            continue;
+          }
         } else {
-          attempts = maxRetries; // Exit loop on non-503 errors
+          // For any error other than 503, fail immediately
           throw new Error(
             `Failed to fetch from ${endpoint} with status: ${response.status}`,
           );
         }
       }
 
+      // If response is okay, return the parsed JSON
       return (await response.json()) as T;
     } catch (error) {
-      attempts++;
-      if (attempts >= maxRetries) {
-        throw new Error(`Failed to fetch from ${endpoint}`);
-      }
-      await delaySeconds(RETRY_DELAY_SECONDS);
+      // For errors caught from the fetch block, including non-503 errors thrown above
+      throw new Error(`Error fetching from ${endpoint}`);
     }
   }
-  throw new Error("Unexpected loop exit"); // Safety net, should not reach here
+  // If the loop completes without returning or throwing for a 503 error, throw a general error
+  throw new Error(
+    `Failed to fetch from ${endpoint} after ${maxAttempts} attempts.`,
+  );
 }
 
 export async function createThread(query: string): Promise<string> {

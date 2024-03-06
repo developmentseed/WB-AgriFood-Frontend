@@ -2,6 +2,8 @@ import { useReducer, useCallback } from "react";
 import { toast } from "react-toastify";
 import { ChatStatus, ChatMessage } from "../types/chat";
 import {
+  MAX_ATTEMPTS,
+  RETRY_DELAY_SECONDS,
   createThread,
   fetchMessages,
   fetchThreadRunStatus,
@@ -140,10 +142,12 @@ export default function useChat() {
         });
 
         let runStatus = "in_progress";
-        while (runStatus !== "completed") {
+        let attempts = 0;
+        while (runStatus !== "completed" && attempts < MAX_ATTEMPTS) {
+          attempts += 1;
           runStatus = await fetchThreadRunStatus(threadId, runId);
           if (runStatus !== "completed") {
-            await delaySeconds(5);
+            await delaySeconds(RETRY_DELAY_SECONDS);
           }
         }
 
@@ -156,7 +160,7 @@ export default function useChat() {
           },
         });
       } catch (error) {
-        toast.error("Failed to send message to AgriFood Data Lab");
+        toast.error("An unexpected error occurred. Please try again.");
         dispatch({
           type: "SEND_QUERY_ERROR",
         });
