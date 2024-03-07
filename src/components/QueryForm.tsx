@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import {
   FormControl,
   Input,
@@ -5,8 +6,7 @@ import {
   InputRightElement,
   Button,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { ChatStatus } from "../hooks/use-chat";
+import { ChatStatus } from "../types/chat";
 
 interface QueryFormProps {
   sendQuery: (query: string) => void;
@@ -15,20 +15,28 @@ interface QueryFormProps {
 
 function QueryForm({ sendQuery, status }: QueryFormProps) {
   const [localQuestion, setLocalQuestion] = useState<string>("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const isLoading = status !== "idle";
+  const isLoading = status !== "idle" && status !== "error";
+
+  useEffect(() => {
+    if (status === "idle") {
+      setLocalQuestion("");
+    }
+    inputRef?.current?.focus();
+  }, [status]);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
         sendQuery(localQuestion);
-        setLocalQuestion("");
       }}
     >
-      <FormControl maxW="75ch" mx="auto">
+      <FormControl maxW={["48rem", "56rem", "64rem"]} mx="auto">
         <InputGroup size={["sm", "md"]} justifyContent="space-between">
           <Input
+            ref={inputRef}
             placeholder={
               isLoading
                 ? "Processing..."
@@ -38,7 +46,7 @@ function QueryForm({ sendQuery, status }: QueryFormProps) {
             overflow="hidden"
             whiteSpace="nowrap"
             disabled={isLoading}
-            value={localQuestion}
+            value={isLoading ? "" : localQuestion}
             bg="white"
             pr={12}
             onChange={(e) => {

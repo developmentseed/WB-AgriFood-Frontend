@@ -1,13 +1,15 @@
 import { useReducer, useCallback } from "react";
-
+import { toast } from "react-toastify";
 import { ChatStatus, ChatMessage } from "../types/chat";
 import {
+  MAX_ATTEMPTS,
+  RETRY_DELAY_SECONDS,
   createThread,
   fetchMessages,
   fetchThreadRunStatus,
   postMessage,
 } from "../utils/api";
-import { delaySeconds } from "../utils";
+import { delaySeconds, reducerLogger } from "../utils";
 
 interface ChatState {
   status: ChatStatus;
@@ -56,24 +58,13 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
         currentQuery: action.payload.query,
         currentMessages: [
           ...state.currentMessages,
+          // Add a processing message to the list of messages
           {
             id: "processing",
-            assistant_id: null,
-            content: [
-              {
-                text: {
-                  value: action.payload.query,
-                },
-                type: "text",
-              },
-            ],
             created_at: Date.now(),
-            file_ids: [],
-            metadata: {},
-            object: "message",
+            markdown: action.payload.query,
+            metadata: null,
             role: "user",
-            run_id: null,
-            thread_id: state.threadId!,
           },
         ],
         status: "loading",
@@ -103,6 +94,10 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         status: "error",
+        // Clear the processing message
+        currentMessages: state.currentMessages.filter(
+          (m) => m.id !== "processing",
+        ),
       };
     }
     default:
@@ -111,7 +106,10 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 };
 
 export default function useChat() {
-  const [state, dispatch] = useReducer(chatReducer, initialState);
+  const [state, dispatch] = useReducer(
+    reducerLogger(chatReducer),
+    initialState,
+  );
   const sendQuery = useCallback(
     async (query: string) => {
       try {
@@ -144,10 +142,12 @@ export default function useChat() {
         });
 
         let runStatus = "in_progress";
-        while (runStatus !== "completed") {
+        let attempts = 0;
+        while (runStatus !== "completed" && attempts < MAX_ATTEMPTS) {
+          attempts += 1;
           runStatus = await fetchThreadRunStatus(threadId, runId);
           if (runStatus !== "completed") {
-            await delaySeconds(5);
+            await delaySeconds(RETRY_DELAY_SECONDS);
           }
         }
 
@@ -160,7 +160,7 @@ export default function useChat() {
           },
         });
       } catch (error) {
-        console.error("Error fetching thread ID:", error);
+        toast.error("An unexpected error occurred. Please try again.");
         dispatch({
           type: "SEND_QUERY_ERROR",
         });
