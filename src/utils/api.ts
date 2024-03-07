@@ -1,7 +1,7 @@
 import { delaySeconds } from ".";
 import { ChatMessage, ChatThreadRunStatus } from "../types/chat";
 
-const API_BASE_URL = "https://hfddhc9q1b.execute-api.us-east-1.amazonaws.com";
+const API_BASE_URL = "https://d1uptve87met4x.cloudfront.net/api/staging";
 const MAX_RETRIES = 10;
 const RETRY_DELAY_SECONDS = 5;
 
