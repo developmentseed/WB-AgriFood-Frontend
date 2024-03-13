@@ -18,6 +18,7 @@ permissions:
 env:
   NODE: 18
   PNPM_VERSION: 8
+  STAGING_PLAUSIBLE_DOMAIN: d1uptve87met4x.cloudfront.net
 
 # Avoid running multiple jobs for the same branch concurrently
 concurrency:
@@ -102,6 +103,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          WB_AGRIFOOD_PLAUSIBLE_DOMAIN: ${{ env.STAGING_PLAUSIBLE_DOMAIN }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
