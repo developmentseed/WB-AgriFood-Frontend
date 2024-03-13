@@ -13,7 +13,7 @@ function App() {
     sendQuery = () => {},
   } = useChat();
 
-  const isLoading = status !== "loading";
+  const isLoading = status === "loading";
 
   return (
     <Layout>
@@ -28,8 +28,11 @@ function App() {
         gap="4"
         overflow="hidden"
       >
-        {!isLoading || currentMessages.length > 0 ? (
-          <Conversation currentMessages={currentMessages} />
+        {currentMessages.length > 0 ? (
+          <Conversation
+            currentMessages={currentMessages}
+            isLoading={isLoading}
+          />
         ) : (
           <LandingState sendQuery={sendQuery} />
         )}

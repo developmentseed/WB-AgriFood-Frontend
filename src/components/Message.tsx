@@ -15,6 +15,7 @@ import {
   Button,
   Badge,
   Divider,
+  SkeletonText,
 } from "@chakra-ui/react";
 import "github-markdown-css";
 import Markdown from "react-markdown";
@@ -26,23 +27,40 @@ import remarkMath from "remark-math";
 import "./markdown.css";
 import { ChatMessage, DataType } from "../types/chat";
 
-const MarkdownContent = ({ markdown }: { markdown: string }) => {
+const MarkdownContent = ({
+  markdown,
+  isLoading,
+}: {
+  markdown: string;
+  isLoading: boolean;
+}) => {
   return (
-    <Markdown
-      remarkPlugins={[remarkBreaks, remarkGfm, supersub, remarkMath]}
-      className={`markdown-body markdown-custom-styles`}
-      components={{
-        a: ({ ...props }) => {
-          // eslint-disable-next-line react/prop-types
-          if (!props.title) {
-            return <a {...props} />;
-          }
-          return <a {...props} title={undefined} />;
-        },
-      }}
+    <SkeletonText
+      isLoaded={!isLoading}
+      mt="2"
+      noOfLines={3}
+      spacing="2"
+      skeletonHeight="3"
+      startColor='gray.200'
+      endColor='gray.300'
+      style={{ maxWidth: "var(--p-max-width, 65ch) " }}
     >
-      {markdown}
-    </Markdown>
+      <Markdown
+        remarkPlugins={[remarkBreaks, remarkGfm, supersub, remarkMath]}
+        className={`markdown-body markdown-custom-styles`}
+        components={{
+          a: ({ ...props }) => {
+            // eslint-disable-next-line react/prop-types
+            if (!props.title) {
+              return <a {...props} />;
+            }
+            return <a {...props} title={undefined} />;
+          },
+        }}
+      >
+        {markdown}
+      </Markdown>
+    </SkeletonText>
   );
 };
 
@@ -161,7 +179,13 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
   );
 };
 
-export default function Message({ message }: { message: ChatMessage }) {
+export default function Message({
+  message,
+  isLoading,
+}: {
+  message: ChatMessage;
+  isLoading: boolean;
+}) {
   const { markdown, metadata } = message;
   const assistantMessage = message.role === "assistant";
   return (
@@ -184,7 +208,9 @@ export default function Message({ message }: { message: ChatMessage }) {
         </Text>
       </HStack>
       <Flex my={1} pl={8} w="100%" direction="column" gap="4">
-        {markdown?.length > 0 && <MarkdownContent markdown={markdown} />}
+        {markdown?.length > 0 && (
+          <MarkdownContent markdown={markdown} isLoading={isLoading} />
+        )}
         {metadata && <MetadataContent metadata={metadata} />}
       </Flex>
     </Flex>
