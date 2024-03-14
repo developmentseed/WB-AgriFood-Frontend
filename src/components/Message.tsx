@@ -115,7 +115,7 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
               <Card key={m.id} size={["sm", null, "md"]}>
                 <CardHeader>
                   <Heading size="sm" as="h4">
-                    {m.name}
+                    {m.name || m.title}
                   </Heading>
                 </CardHeader>
                 <CardBody gap={4} pt={0}>
