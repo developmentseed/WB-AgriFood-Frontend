@@ -115,13 +115,11 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
                         </Badge>
                       )}
                     </Flex>
-                    {m.description ||
-                      m.summary ||
-                      (m.text_to_embed && (
-                        <Text fontSize="sm" py={2}>
-                          {m.description || m.summary || m.text_to_embed}
-                        </Text>
-                      ))}
+                    {(m.description || m.summary || m.text_to_embed) && (
+                      <Text fontSize="sm" py={2}>
+                        {m.description || m.summary || m.text_to_embed}
+                      </Text>
+                    )}
                     {m.explanation && (
                       <Box mt="auto">
                         <details>
@@ -137,20 +135,19 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
                         </details>
                       </Box>
                     )}
-                    {m.url ||
-                      (m.link && (
-                        <Button
-                          size="xs"
-                          as="a"
-                          href={m.url || m.link}
-                          title={m.url || m.link}
-                          target="_blank"
-                          variant="outline"
-                          colorScheme="blue"
-                        >
-                          Visit
-                        </Button>
-                      ))}
+                    {(m.url || m.link) && (
+                      <Button
+                        size="xs"
+                        as="a"
+                        href={m.url || m.link}
+                        title={m.url || m.link}
+                        target="_blank"
+                        variant="outline"
+                        colorScheme="blue"
+                      >
+                        Visit
+                      </Button>
+                    )}
                   </Stack>
                 </CardBody>
               </Card>
