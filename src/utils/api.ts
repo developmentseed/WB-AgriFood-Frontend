@@ -2,7 +2,7 @@ import { delaySeconds } from ".";
 import { ChatMessage, ChatThreadRunStatus, DataType } from "../types/chat";
 import { AssistantMessage } from "../types/assistant-message";
 
-const API_BASE_URL = "https://d1uptve87met4x.cloudfront.net/api/staging";
+const API_BASE_URL = import.meta.env.WB_AGRIFOOD_API_BASE_URL;
 export const MAX_ATTEMPTS = 10;
 export const RETRY_DELAY_SECONDS = 5;
 
