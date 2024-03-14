@@ -27,7 +27,7 @@ pnpm install
 
 This app uses Vite.js as build tool, which uses `.env*` files to configure the app. Please refer to "[Env Variables](https://vitejs.dev/guide/env-and-mode.html#env-variables-and-modes)" documentation page of Vite.js for more details.
 
-The default configuration is available in [.env](.env) file. To use a custom setup locally, create a `.env.local` file, which will loaded in all run modes and ignored by git.
+The default configuration is available in the [.env](.env) file. To use a custom setup in development, create a `.env.development.local` file which will override the default values. This file is ignored by git.
 
 ## Starting the app
 
