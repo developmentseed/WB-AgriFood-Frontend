@@ -106,7 +106,7 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
           .map((m) => {
             const typeTagColor = {
               app: "red",
-              youtube_video: "red',
+              youtube_video: "red",
               dataset: "blue",
               microdataset: "cyan",
               video: "purple",
