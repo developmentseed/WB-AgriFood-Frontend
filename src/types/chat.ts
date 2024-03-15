@@ -26,7 +26,8 @@ export type ChatThreadRunStatus =
 export type DataType = {
   id: string;
   name: string;
-  type?: "dataset" | "project" | "youtube_video" | "paper" | "usecase" ;
+  title?: string;
+  type?: "dataset" | "project" | "youtube_video" | "paper" | "usecase";
   _distance?: number;
   description?: string;
   summary?: string;
