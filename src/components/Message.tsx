@@ -106,16 +106,19 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
           .map((m) => {
             const typeTagColor = {
               app: "red",
+              youtube_video: "red",
               dataset: "blue",
               microdataset: "cyan",
               video: "purple",
               project: "orange",
+              paper: "purple",
+              usecase: "cyan",
             };
             return (
               <Card key={m.id} size={["sm", null, "md"]}>
                 <CardHeader>
                   <Heading size="sm" as="h4">
-                    {m.name}
+                    {m.name || m.title}
                   </Heading>
                 </CardHeader>
                 <CardBody gap={4} pt={0}>
