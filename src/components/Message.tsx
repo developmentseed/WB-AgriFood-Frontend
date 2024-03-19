@@ -123,7 +123,7 @@ const MetadataContent = ({ metadata }: { metadata: DataType[] }) => {
                 </CardHeader>
                 <CardBody gap={4} pt={0}>
                   <Stack spacing="2" alignItems={"flex-start"} height="100%">
-                    <Flex alignItems={"center"} width="100%" gap={4}>
+                    <Flex alignItems={"center"} width="100%" gap={4} wrap={"wrap"}>
                       {m.type && (
                         <Tag size="sm" colorScheme={typeTagColor[m.type]}>
                           {m.type.toUpperCase()}
